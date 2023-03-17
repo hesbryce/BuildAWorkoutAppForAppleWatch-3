@@ -10,9 +10,10 @@ import HealthKit
 
 struct MetricsView: View {
     @EnvironmentObject var workoutManager: WorkoutManager
-    
     var body: some View {
-        TimelineView(MetricsTimelineSchedule(from: workoutManager.builder?.startDate ?? Date(),
+        // Show all metrics if user is doing an outdoor workout
+            if workoutManager.selectedWorkout == .running || workoutManager.selectedWorkout == .cycling || workoutManager.selectedWorkout == .walking {
+            TimelineView(MetricsTimelineSchedule(from: workoutManager.builder?.startDate ?? Date(),
                                              isPaused: workoutManager.session?.state == .paused)) { context in
             VStack(alignment: .leading) {
                 ElapsedTimeView(elapsedTime: workoutManager.builder?.elapsedTime(at: context.date) ?? 0, showSubseconds: context.cadence == .live)
@@ -20,13 +21,35 @@ struct MetricsView: View {
                 Text(Measurement(value: workoutManager.activeEnergy, unit: UnitEnergy.kilocalories)
                         .formatted(.measurement(width: .abbreviated, usage: .workout, numberFormatStyle: .number.precision(.fractionLength(0)))))
                 Text(workoutManager.heartRate.formatted(.number.precision(.fractionLength(0))) + " bpm")
-                Text(Measurement(value: workoutManager.distance, unit: UnitLength.meters).formatted(.measurement(width: .abbreviated, usage: .road)))
+                Text(Measurement(value: workoutManager.distance, unit: UnitLength.miles).formatted(.measurement(width: .abbreviated, usage: .road)))
             }
             .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
             .frame(maxWidth: .infinity, alignment: .leading)
             .ignoresSafeArea(edges: .bottom)
             .scenePadding()
+            }
         }
+        
+        // Hide distance when user is doing an indoor workout.
+        else {
+                TimelineView(MetricsTimelineSchedule(from: workoutManager.builder?.startDate ?? Date(),
+                                                 isPaused: workoutManager.session?.state == .paused)) { context in
+                VStack(alignment: .leading) {
+                    ElapsedTimeView(elapsedTime: workoutManager.builder?.elapsedTime(at: context.date) ?? 0, showSubseconds: context.cadence == .live)
+                        .foregroundStyle(.yellow)
+                    Text(Measurement(value: workoutManager.activeEnergy, unit: UnitEnergy.kilocalories)
+                            .formatted(.measurement(width: .abbreviated, usage: .workout, numberFormatStyle: .number.precision(.fractionLength(0)))))
+                    Text(workoutManager.heartRate.formatted(.number.precision(.fractionLength(0))) + " bpm")
+                }
+                .font(.system(.title, design: .rounded).monospacedDigit().lowercaseSmallCaps())
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .ignoresSafeArea(edges: .bottom)
+                .scenePadding()
+            }
+        }
+        
+        
+        
     }
 }
 

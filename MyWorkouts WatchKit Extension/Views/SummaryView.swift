@@ -22,17 +22,52 @@ struct SummaryView: View {
     
     var body: some View {
         if workoutManager.workout == nil {
+            if workoutManager.selectedWorkout == .other {
+                ProgressView("Closing Stamina Bar")
+                    .navigationBarHidden(true)
+            }
             ProgressView("Saving Workout")
                 .navigationBarHidden(true)
-        } else {
+        }
+        
+      
+        
+        // User Chose Stamina Bar
+        else if workoutManager.selectedWorkout == .other {
+            ScrollView {
+                VStack(alignment: .leading) {
+                    SummaryMetricView(title: "Total Energy",
+                                      value: Measurement(value: workoutManager.workout?.totalEnergyBurned?.doubleValue(for: .kilocalorie()) ?? 0,
+                                                         unit: UnitEnergy.kilocalories)
+                                        .formatted(.measurement(width: .abbreviated,
+                                                                usage: .workout,
+                                                                numberFormatStyle: .number.precision(.fractionLength(0)))))
+                        .foregroundStyle(.pink)
+                    SummaryMetricView(title: "Avg. Heart Rate",
+                                      value: workoutManager.averageHeartRate.formatted(.number.precision(.fractionLength(0))) + " bpm")
+                        .foregroundStyle(.red)
+                    Text("Activity Rings")
+                    ActivityRingsView(healthStore: workoutManager.healthStore)
+                        .frame(width: 50, height: 50)
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+                .scenePadding()
+            }
+            .navigationTitle("Summary")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        
+        else {
             ScrollView {
                 VStack(alignment: .leading) {
                     SummaryMetricView(title: "Total Time",
                                       value: durationFormatter.string(from: workoutManager.workout?.duration ?? 0.0) ?? "")
                         .foregroundStyle(.yellow)
                     SummaryMetricView(title: "Total Distance",
-                                      value: Measurement(value: workoutManager.workout?.totalDistance?.doubleValue(for: .meter()) ?? 0,
-                                                         unit: UnitLength.meters)
+                                      value: Measurement(value: workoutManager.workout?.totalDistance?.doubleValue(for: .mile()) ?? 0,
+                                                         unit: UnitLength.miles)
                                         .formatted(.measurement(width: .abbreviated,
                                                                 usage: .road,
                                                                 numberFormatStyle: .number.precision(.fractionLength(2)))))

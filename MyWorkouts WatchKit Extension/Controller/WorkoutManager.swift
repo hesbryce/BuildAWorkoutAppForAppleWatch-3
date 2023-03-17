@@ -127,8 +127,8 @@ class WorkoutManager: NSObject, ObservableObject {
                 let energyUnit = HKUnit.kilocalorie()
                 self.activeEnergy = statistics.sumQuantity()?.doubleValue(for: energyUnit) ?? 0
             case HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning), HKQuantityType.quantityType(forIdentifier: .distanceCycling):
-                let meterUnit = HKUnit.meter()
-                self.distance = statistics.sumQuantity()?.doubleValue(for: meterUnit) ?? 0
+                let mileUnit = HKUnit.mile()
+                self.distance = statistics.sumQuantity()?.doubleValue(for: mileUnit) ?? 0
             default:
                 return
             }
